@@ -1,0 +1,147 @@
+<!doctype>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>星易通汇</title>
+    <style>
+       body{
+            background: url("./images/2.jpg")  no-repeat;
+            background-size: 100% 100%;
+            height: 100%;
+            width: 100%;
+        }
+        .top1{
+           position: absolute;
+            top:11%;
+            height: 10%;
+            width: 70%;
+            text-align:center ;
+            left: 18%;
+        }
+        .top1 img{
+            display:block;
+            height: 100%;
+            width: 100%;
+        }
+        .top2{
+            position: absolute;
+            top:20%;
+            height: 7%;
+            width: 64%;
+            text-align:center ;
+            left: 21%;
+        }
+        .top2 img{
+            margin-top: 5%;
+            display:block ;
+            height: 100%;
+            width: 100%;
+        }
+        .wheel{
+            background: url("images/wheel.png") no-repeat;
+            background-size:100% 100%;
+            margin-top:55%;
+            width: 320px;
+            height: 339px;
+            margin-left:6%;
+        }
+       #goluck{
+           background:url("images/goluck.png") no-repeat;
+           background-size: 100% 100%;
+           width: 71.5px;
+           height:86.5px;
+           border: none;
+           outline: none;
+           margin-left: 124px;
+           margin-top: 100px;
+       }
+       .infoText{
+           display: none;
+           top:83%;
+           width: 100%;
+           height: 9.46%;
+           text-align: center;
+           position:absolute;
+       }
+        #infoText img{
+            width:58.28%;
+            height: 100%;
+            display: block;
+            position: absolute;
+        }
+        .prize{
+            width: 100%;
+            height: 52%;
+            top:22%;
+            position: absolute;
+            display: none;
+        }
+       .prize img{
+            display: block;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<script src="./js/jquery-1.11.1.min.js"></script>
+<script src="./js/jQueryRotate.2.2.js"></script>
+<script>
+    $(function () {
+       var wid=$(window).width;
+        $("#top1").css("height",wid/640*114);
+       $("#top2").css("heigth",wid/640*64);
+       $("#wheel").css("height",wid/640*678);
+        $("#goluck").click(function () {
+            $("#submit").attr("disabled", true);
+            var param = {
+                phone: 18917218676
+            };
+            $.ajax({
+                url:"http://192.168.20.110:8080/check/test/13164957381",
+                type: "GET",
+                dataType: "jsonp",
+                data:param,
+                success: function (msg) {
+                    $("#goluck").rotate({
+                        angle: 0,
+                        duration: 2000,
+                        animateTo: 1440+60*msg,
+                        callback: function () {
+                            if (msg!=2){
+                            $(".wheel").hide();
+                            var url1 = "./images/topText"+msg+".png";
+                            var url2 = "./images/prize"+msg+".png";
+                            $(".top1 img").attr("src", url1);
+                            $(".prize").css("height", wid / 640 * 540);
+                            $(".prize").show();
+                            $(".prize img").attr("src", url2);
+                            $(".top2").hide();
+                            $(".infotext").show();
+                            $(".infotext img").css("height", wid / 640 * 98);
+                            }else if(msg==0){
+                                $(".noluck").show();
+                            }
+                        }
+                    });
+                },
+            });
+        });
+    });
+</script>
+<body>
+    <div class="top1"><img src="images/topText0.png"></div>
+    <div class="top2"><img src="images/topChance.png"></div>
+    <div class="wheel">
+       <button id="goluck"></button>
+    </div>
+    <div>
+        <div class="prize">
+            <img>
+        </div>
+        <div class="infoText"><img src="images/infoText.png"></div>
+    </div>
+    <div class="noluck"></div>
+</body>
+</html>

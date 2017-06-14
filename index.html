@@ -1,0 +1,226 @@
+<!DOCTYPE>
+<html xmlns:ime-mode="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8" content="text/html" http-equiv="Content-Type" >
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>星易通汇</title>
+    <style>
+        body{
+          background:url(./images/1.jpg) no-repeat;
+            background-size: 100% 100%;
+            height: 100%;
+            width: 100%;
+        }
+       #shuru{
+           position: absolute;
+           top:55%;
+           width: 78.9%;
+           left: 10.55%;
+           margin-top: 22px;
+       }
+        #shuru div{
+            margin-top:5%;
+        }
+        #shuru #name{
+            line-height: 100%;
+            background: url(./images/name.png) no-repeat;background-size:100% 100%;
+            outline:0;
+            height: 36px;
+            width:100%;
+            border:none;
+            font-size: 1.2rem;
+            box-sizing: border-box;
+            position:relative;
+            padding-left: 26%;
+            padding-bottom: 3%;
+        }
+
+        #shuru #phone{
+            background:url(./images/phone.png) no-repeat;
+            background-size: 100% 100%;
+            outline: none;
+            height: 35px;
+            width: 100%;
+            border: none;
+            font-size: 1.2em;
+            box-sizing: border-box;
+            position: relative;
+            padding-left: 26%;
+            padding-bottom: 3%;
+        }
+
+       .page3 #code{
+           background: url(./images/code.png) no-repeat;
+           background-size:100% 100%;
+           outline: none;
+           border:none;
+           font-size: 1.2em;
+           box-sizing: border-box;
+           position: relative;
+           padding-left: 31%;
+           padding-bottom:3%;
+           width: 62.05%;
+           height: 35px;
+       }
+       .page3 #getcode{
+           background: url(./images/getCode.png) no-repeat;
+           background-size:100% 100%;
+           width:33%;
+           height: 35px;
+           margin-left: 0.5%;
+           font-size: 1.2em;
+           border: none;
+           outline: none;
+           box-sizing: border-box;
+           padding-bottom: 3%;
+           font-size: 13px;
+       }
+        .page4 #submit{
+            background:url(./images/apply.png) no-repeat;
+            background-size: 100% 100%;
+            padding-left: 22%;
+            padding-bottom: 2%;
+            height: 40px;
+            margin-left: 33%;
+            line-height: 100%;
+            box-sizing: content-box;
+            outline: none;
+            border: none;
+        }
+       #shuru label.error{
+            color: white;
+            font-size: 12px;
+           position: absolute;
+        }
+    </style>
+</head>
+<body>
+<script src="./js/jquery-1.11.1.min.js"></script>
+<script src="./js/jquery.validate.js"></script>
+<script type="text/javascript">
+    jQuery.validator.addMethod("phone",function (value,element,param) {
+        var length=value.length;
+        var  phone = /^\d{11}$/;
+        return this.optional(element)||(length==11&&phone.test(value));
+    },"请正确的填入电话号码！");
+
+    jQuery.validator.addMethod("notNumber",function (value,element,param) {
+        var phone= /[\u4e00-\u9fa5]+/;
+        return this.optional(element)||phone.test(value);
+    },"姓名必须是中文！");
+    $(function () {
+        var w=$(window).width();
+        $("#shuru #name").css("height",w/640*80);
+        $("#shuru #phone").css("height",w/640*80);
+        $("#shuru #code").css("height",w/640*78);
+        $("#shuru #getcode").css("height",w/640*79);
+        $("#shuru #submit").css("height",w/640*92);
+
+        $("#getcode").click(function () {
+            var reg=/^(13[0-9]|15[012356789]|17[678]|18[0-9]|14[4-9])[0-9]{8}$/;
+            var tel=$("#phone").val();
+            if (tel==reg){
+                GetCode();
+                var count=60;
+                var countDown=setInterval(function () {
+                    $("#getcode").attr("disabled",true).val();
+                    $("#getcode").val(count+"s");
+                    if(count==0){
+                        $("#getcode").removeAttrs("disabled").val("发送验证码");
+                        clearInterval(countDown);
+                    };
+                    count--;
+                },1000)
+            }else{
+                alert("请输入正确的验证码！")
+            }
+        });
+        function GetCode() {
+            var pnumber={
+               phone:$("phone").val(),
+            };
+            $.ajax({
+                //url:'http://yyhd.chinaredstar.com:8088/jjd-weixin/api/user/sendJsonp',
+                type:'GET',
+                data:pnumber,
+                dataType:'jsonp',
+                success:function (data) {
+                    code=data;
+                },
+                error:function () {
+                  alert("网络有问题");
+                }
+                });
+        }
+        $("#shuru").validate({
+            rules:{
+                name:{
+                    required:true,
+                    notNumber:true
+                },
+                phone:{
+                    required:true,
+                    minlength:11,
+                    ismobile:true
+                },
+                code:{
+                    required:true
+                }
+            },
+            messages:{
+                name:{
+                    required:"请输入姓名!",
+                },
+                phone:{
+                    required:"请输入手机号!",
+                    minlength:"手机号长度为11位!",
+                    ismobile:"手机号码格式不正确!"
+                },
+                code:{
+                    required:"请输入验证码!"
+                }
+            }
+        });
+        //提交按钮
+      $("#submit").click(function () {
+         if($("#shuru").valid()){
+             if ($("#code").val()==code){
+              $.ajax({
+                  data:$("#shuru").serialize(),
+                  type:"post",
+                  success:function (msg) {
+                       if(msg==0){
+                           alert("您已完成抽奖！");
+                           window.location="choujiang/2.html";
+                       }  else if (msg==-1){
+                            $("#unenter").show();
+                       }
+                  },error:function () {
+                     alert("网络有问题！")
+                 }
+              });
+             }
+         }
+      });
+    });
+</script>
+<div class="back">
+    <form id="shuru">
+        <div class="page1">
+            <input type="text" name="name" id="name">
+        </div>
+        <div class="page2">
+            <input type="text" name="phone" id="phone">
+        </div>
+        <div class="page3">
+            <input type="text" name="yanzhenma" id="code">
+            <input type="button" name="yanzhenma" id="getcode" value="发送验证码">
+        </div>
+        <div class="page4">
+            <input type="button" id="submit"  onclick="javascript:window.location.href='./2.html'">
+        </div>
+    </form>
+</div>
+<div class="noaccess"></div>
+</body>
+</html>
